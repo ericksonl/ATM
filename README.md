@@ -3,7 +3,7 @@ A simple ATM that will display bank account information
 
 Bank.java, ATM.java, Driver.java Created by: Liam Erickson
 
-Account.Java created by Kevin Sahr adapted from adapted from Lewis & Loftus, edited by Liam Erickson
+Account.Java created by: Kevin Sahr adapted from adapted from Lewis & Loftus. Edited by: Liam Erickson
 
 Date Created: April 22nd 2019
 
