@@ -1,12 +1,9 @@
-//2rd use
 //File: Account.java
-//Liam Erickson
+//Edit By: Liam Erickson
 // May 3rd, 2019
-//Lab 5 Part A
 
 //  Account.java
-//  CS257 Example (adapted from Lewis & Loftus)
-//  Kevin Sahr, April 1, 2014
+//  Created By: Kevin Sahr, April 1, 2014 (adapted from Lewis & Loftus)
 //
 //  Represents a bank account with basic services such as deposit
 //  and withdraw.
@@ -55,7 +52,6 @@ public class Account {
 	}
 
 	// // service instance methods
-	//Lab 3 Part A
 	boolean login (int pinNum) {
 		boolean active = false;
 		if (this.pinNum == pinNum) {
@@ -88,7 +84,6 @@ public class Account {
 		balance += (balance * INTEREST_RATE);
 		return balance;
 	}
-	//Lab 3 Part A
 	public void setPinNum (int pinNum) {this.pinNum = pinNum; }
 	public int getPinNum () {return pinNum;}
 	
