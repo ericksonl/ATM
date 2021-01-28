@@ -1,124 +1,207 @@
-//File: Account.java
-//Edit By: Liam Erickson
-// May 3rd, 2019
+// file: ATM.java
+// Author: Liam Erickson
+// Created: April 22, 2019
 
-//  Account.java
-//  Created By: Kevin Sahr, April 1, 2014 (adapted from Lewis & Loftus)
-//
-//  Represents a bank account with basic services such as deposit
-//  and withdraw.
-
+import java.util.Scanner;
 import java.text.DecimalFormat;
 
-public class Account {
-	// // class variables
-
-	// constants
-	public static final double INTEREST_RATE = 0.035; // interest rate of 3.5%
-	public static final long START_ACCT_NUM = 100000; // first account number
-
-	// non-constant class variables
-	private static long numAccounts = 0; // number of accounts created
-
-	// // instance data
-	private long acctNumber;
-	private double balance = 0.0;
-	private String name = "John Doe";
-
-	private int pinNum = 0;
-	private boolean loggedIn = false;
+public class ATM {
 	
-	// // class service methods
-	public static long numberOfAccounts() {
-		return numAccounts;
+	public static final double fee = 1.5;
+	private static DecimalFormat format = new DecimalFormat("0.00");
+	private static Scanner scan = new Scanner(System.in);
+	
+	private Bank bank;
+	private String name;
+	
+	ATM(Bank bank, String name) {
+		this.name= name;
+		this.bank = bank;
 	}
+	
+	public void mainMenu () {
 
-	// // class helper methods
-	private static long newAcctNum() {
-		long newNum = START_ACCT_NUM + numAccounts;
-		numAccounts++;
-		return newNum;
+		boolean options = true;
+		long accountNum;
+		while (options) {
+			System.out.print(
+					"~~~~ " + name + " Menu ~~~~ \n"
+					+ "1. Create a new account. \n"
+					+ "2. Login. \n"
+					+ "3. Exit.");
+			int menuOptions = Integer.parseInt(scan.nextLine());
+			System.out.println("You have chosen: " + menuOptions);
+			
+			switch (menuOptions) {
+			
+			case 1:
+				System.out.print("Please Enter your name: ");
+				String name = scan.nextLine();
+				System.out.print("Please retype your name: ");
+				String nameV = scan.nextLine();
+				if (!name.equals(nameV)) {
+					System.out.println("Error: Name did not match.");
+					continue;
+				} else {
+					int pinCheck = 0;
+					while (true) {
+						try {
+							System.out.println("Please enter a 4 digit Pin");
+							int pinIn = Integer.parseInt(scan.nextLine());
+							while (pinIn < 1000 || pinIn > 9999) {
+								System.out.println("Invalid input!");
+								System.out.println("Please enter a 4 digit Pin");
+								pinIn = Integer.parseInt(scan.nextLine());
+							}
+							System.out.print("Please retype the 4 digit PIN: ");
+							pinCheck = Integer.parseInt(scan.nextLine());
+							if (pinIn != pinCheck) {
+								System.out.println("Error: PIN did not match.");
+								continue;
+							}
+						} catch (NumberFormatException ne) {
+							   System.out.println("Invalid input!");
+							   continue;
+						} 
+						break;
+					}
+					accountNum = bank.createAccount(name);
+					Account liamsAccount = bank.getAccount(accountNum);
+					liamsAccount.setPinNum(pinCheck);
+					System.out.println("Your new bank account  " + name + " has been created. The account number is: " + accountNum);
+					break;
+				}
+			case 2:
+				System.out.print("Enter your account number: ");
+				accountNum = Integer.parseInt(scan.nextLine());
+				System.out.println("You entered " + accountNum);
+				Account liamsAccount = bank.getAccount(accountNum);
+				if (liamsAccount == null) {
+					continue;
+				}
+				
+				System.out.print("Enter your PIN: ");
+				int pinNumInt = Integer.parseInt(scan.nextLine());
+				if (liamsAccount.login(pinNumInt))
+					accountMenu(liamsAccount);
+				else 
+					System.out.println("Error: Invalid PIN!");
+				break;
+				
+			case 3:
+				System.out.print("Goodbye!");
+				options = false;
+				break;
+				
+			default:
+				System.out.println("Sorry: " + menuOptions + " is not a valid option");
+			}//end choice
+		}//end options
 	}
-
-	// // constructors
-	public Account() {
-		acctNumber = newAcctNum();
-	}
-
-	public Account(String name, double balance) {
-		this.name = name;
-		this.balance = balance;
-		acctNumber = newAcctNum();
-	}
-
-	// // service instance methods
-	boolean login (int pinNum) {
-		boolean active = false;
-		if (this.pinNum == pinNum) {
-			loggedIn = true;
-			active = true;
+	
+	private void accountMenu (Account account) {
+		
+		boolean options = true;
+		while (options) {
+			System.out.print(
+					" ~~~~ " + name + "  Menu ~~~~ \n"
+					+ "a. Make a deposit \n"
+					+ "b. Withdrawl Money \n"
+					+ "c. Account Info \n"
+					+ "d. Change Pin \n"
+					+ "e. Logout");
+			char atmOptions = scan.nextLine().charAt(0);
+			System.out.println("You have chosen: " + atmOptions);
+			switch (atmOptions) {
+			case 'a':
+				deposit(account);
+				break;
+			
+			case 'b':
+				withdrawl(account);
+				break;
+			
+			case 'c':
+				System.out.println("Displaying your account info:");
+				System.out.println(account);
+				break;
+				
+			case 'd':
+				int pinCheck = 0;
+				boolean tru = true;
+				while (tru) {
+					try {
+						System.out.println("Please enter a 4 digit Pin");
+						int pinIn = Integer.parseInt(scan.nextLine());
+						while (pinIn < 1000 || pinIn > 9999) {
+							System.out.println("Invalid input!");
+							System.out.println("Please enter a 4 digit Pin");
+							pinIn = Integer.parseInt(scan.nextLine());
+						}
+						if (pinIn == account.getPinNum()) {
+							System.out.print("Error: " + pinIn + " is your current PIN number!\n");
+							continue;
+						}
+						System.out.print("Please retype your PIN: ");
+						pinCheck = Integer.parseInt(scan.nextLine());
+						if (pinIn != pinCheck) {
+							System.out.println("Error: PIN did not match.");
+							continue;
+						}
+					} catch (NumberFormatException ne) {
+						   System.out.println("Invalid input!");
+						   continue;
+					}
+					account.setPinNum(pinCheck);
+					tru = false;
+				}
+				break;
+			case 'e':
+				account.logOut();
+				System.out.println("Logging Out...");
+				System.out.println("Goodbye!");
+				options = false;
+				break;
+				
+			default:
+				System.out.println("Sorry: " + atmOptions + " is not a valid option");
+				
+			}//end switch
+		}//end while
+	}//end account menu
+	
+	private void deposit(Account account) {
+		System.out.print("Enter how much you would like to deposit: ");
+		double amount = Double.parseDouble(scan.nextLine());
+		while (amount <= 0) {
+			System.out.println("ERROR: " + format.format(amount) + " is not a positive amount!");
+			System.out.println(" Please enter a positive amount of money you would like to deposit: ");
+			amount = Double.parseDouble(scan.nextLine());
 		}
-		return active;
+		
+		System.out.println("Depositing: " + format.format(amount));
+		account.deposit(amount);
+
 	}
 	
-	void logOut () {
-		loggedIn = false;
-	}
-	
-	// Deposits the specified amount into the account. Returns the
-	// new balance.
-	public double deposit(double amount) {
-		balance += amount;
-		return balance;
-	}
-
-	// Withdraws the specified amount from the account and applies
-	// the fee. Returns the new balance.
-	public double withdraw(double amount, double fee) {
-		balance -= amount + fee;
-		return balance;
-	}
-
-	// Adds interest to the account and returns the new balance.
-	public double addInterest() {
-		balance += (balance * INTEREST_RATE);
-		return balance;
-	}
-	public void setPinNum (int pinNum) {this.pinNum = pinNum; }
-	public int getPinNum () {return pinNum;}
-	
-	public boolean getLoggedIn () {return loggedIn;}
-	
-	// Returns the current name on the account.
-	public String getName() {
-		return name;
-	}
-
-	// Returns the current account number on the account.
-	public long getAcctNumber() {
-		return acctNumber;
-	}
-
-	// Returns the current balance of the account.
-	public double getBalance() {
-		return balance;
-	}
-
-	// Sets the current balance of the account to a new value.
-	public void setBalance(double balance) {
-		this.balance = balance;
-	}
-
-	// Returns a one-line description of the account as a string.
-	public String toString() {
-		String loggedInStatus;
-		if (loggedIn)
-			loggedInStatus = "Currently Logged In ";
+	private void withdrawl(Account account) {
+		System.out.println("There will be a " + format.format(fee) + " fee." );
+		System.out.print("Enter the amount you would like to withdrawl: ");
+		double amount = Double.parseDouble(scan.nextLine());
+		while (amount <= 0) {
+			System.out.println("ERROR: " + format.format(amount) + " is not a positive amount!");
+			System.out.println("Please enter a positive amount of money you would like to withdrawl: ");
+			amount = Double.parseDouble(scan.nextLine());
+		}
+		
+		System.out.println("Withdrawling $" + format.format(amount));
+		
+		double funds = account.getBalance() - fee;
+		if (funds >= amount)
+			account.withdraw(amount, fee);
 		else
-			loggedInStatus = "Not Logged In";
-		DecimalFormat fmt = new DecimalFormat("0.00");
-		return ("Account Number: " + acctNumber + "\n" + "Account Holder Name: " + name +
-		"\n" + "Current Balance: " + fmt.format(balance) + "\n" + "Pin Number: " + pinNum + 
-		"\n" + loggedInStatus);
+			System.out.println("ERROR: Insufficient Funds");
+		
+		
 	}
-}//end account
+}
