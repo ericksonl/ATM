@@ -1,7 +1,7 @@
 //File: Bank.java
 //Liam Erickson
 //May 3rd, 2019
-//Lab 5a
+
 public class Bank
 {
 
